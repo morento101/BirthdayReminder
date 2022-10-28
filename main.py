@@ -1,6 +1,11 @@
 from enum import Enum
-from pydantic import BaseModel, Field, HttpUrl
-from fastapi import FastAPI, Query, Path, Body
+from pydantic import BaseModel, Field, HttpUrl, EmailStr
+from fastapi import (
+    FastAPI, Query, Path, Body, Cookie, Header, status, Form, File, UploadFile,
+    HTTPException
+)
+from datetime import datetime, time, timedelta
+from uuid import UUID
 
 
 class ModelName(str, Enum):
@@ -21,8 +26,20 @@ class Item(BaseModel):
     )
     price: float = Field(gt=0, description="The price must be greater than zero")
     tax: float | None = None
-    tags: set[str] = set()
-    images: list[Image] | None = None
+    tags: set[str] = Field(default=set(), example={"tag1", "tag2"})
+    images: list[Image] | None = Field(
+        default=None, description="Here you can save your images"
+    )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "Foo",
+                "description": "A very nice Item",
+                "price": 35.4,
+                "tax": 3.2,
+            }
+        }
 
 
 class Offer(BaseModel):
@@ -37,10 +54,23 @@ class User(BaseModel):
     full_name: str | None = None
 
 
+class UserIn(BaseModel):
+    username: str
+    password: str
+    email: EmailStr
+    full_name: str | None = None
+
+
+class UserOut(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str | None = None
+
+
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/", status_code=status.HTTP_200_OK)
 async def root():
     return {"message": "Hello World"}
 
@@ -77,12 +107,24 @@ async def read_file(file_path: str):
     return {"file_path": file_path}
 
 
-fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+fake_items_db = [
+    {"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}
+]
 
 
 @app.get("/item/")
 async def read_item(skip: int = 0, limit: int = 10):
     return fake_items_db[skip:skip + limit]
+
+
+# @app.get("/items/")
+# async def read_items(ads_id: str | None = Cookie(default=None)):
+#     return {"ads_id": ads_id}
+
+
+# @app.get("/items/")
+# async def read_items(user_agent: str | None = Header(default=None)):
+#     return {"User-Agent": user_agent}
 
 
 @app.get("/items/")
@@ -97,7 +139,7 @@ async def read_items(q: str | None = Query(default=None, title="Query String",
     return results
 
 
-@app.post("/items/")
+@app.post("/items/", response_model=Item)
 async def create_item(item: Item):
     item_dict = item.dict()
     if item.tax:
@@ -111,7 +153,15 @@ async def update_item(
         *,
         item_id: int = Path(title="The ID of the item to get", ge=0, le=1000),
         q: str | None = None,
-        item: Item | None = None,
+        item: Item = Body(
+            example={
+                "name": "Foo",
+                "description": "A very nice Item",
+                "price": 35.4,
+                "tax": 3.2,
+            },
+            default=None
+        ),
 ):
     results = {"item_id": item_id}
     if q:
@@ -147,3 +197,44 @@ async def create_offer(offer: Offer):
 @app.post("/images/multiple/")
 async def create_multiple_images(images: list[Image]):
     return images
+
+
+@app.put("/items/{item_id}")
+async def read_items(
+    item_id: UUID,
+    start_datetime: datetime | None = Body(default=None),
+    end_datetime: datetime | None = Body(default=None),
+    repeat_at: time | None = Body(default=None),
+    process_after: timedelta | None = Body(default=None),
+):
+    start_process = start_datetime + process_after
+    duration = end_datetime - start_process
+    return {
+        "item_id": item_id,
+        "start_datetime": start_datetime,
+        "end_datetime": end_datetime,
+        "repeat_at": repeat_at,
+        "process_after": process_after,
+        "start_process": start_process,
+        "duration": duration,
+    }
+
+
+@app.post("/user/", response_model=UserOut)
+async def create_user(user: UserIn):
+    return user
+
+
+@app.post("/login/")
+async def login(username: str = Form(), password: str = Form()):
+    return {"username": username}
+
+
+@app.post("/files/")
+async def create_file(file: bytes = File()):
+    return {"file_size": len(file)}
+
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename}
