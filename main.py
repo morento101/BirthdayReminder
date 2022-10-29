@@ -2,10 +2,12 @@ from enum import Enum
 from pydantic import BaseModel, Field, HttpUrl, EmailStr
 from fastapi import (
     FastAPI, Query, Path, Body, Cookie, Header, status, Form, File, UploadFile,
-    HTTPException
+    HTTPException, Depends
 )
 from datetime import datetime, time, timedelta
 from uuid import UUID
+from fastapi.encoders import jsonable_encoder
+from fastapi.security import OAuth2PasswordBearer
 
 
 class ModelName(str, Enum):
@@ -238,3 +240,78 @@ async def create_file(file: bytes = File()):
 @app.post("/uploadfile/")
 async def create_upload_file(file: UploadFile):
     return {"filename": file.filename}
+
+
+# items = {
+#     "foo": {"name": "Foo", "price": 50.2},
+#     "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
+#     "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
+# }
+
+# @app.patch("/items/{item_id}", response_model=Item)
+# async def update_item(item_id: str, item: Item):
+#     stored_item_data = items[item_id]
+#     stored_item_model = Item(**stored_item_data)
+#     update_data = item.dict(exclude_unset=True)
+#     updated_item = stored_item_model.copy(update=update_data)
+#     items[item_id] = jsonable_encoder(updated_item)
+#     return updated_item
+
+
+async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):
+    return {"q": q, "skip": skip, "limit": limit}
+
+
+@app.get("/items/")
+async def read_items(commons: dict = Depends(common_parameters)):
+    return commons
+
+
+@app.get("/users/")
+async def read_users(commons: dict = Depends(common_parameters)):
+    return commons
+
+
+class CommonQueryParams:
+    def __init__(self, q: str | None = None, skip: int = 0, limit: int = 100):
+        self.q = q
+        self.skip = skip
+        self.limit = limit
+
+
+@app.get("/items/")
+# async def read_items(commons: CommonQueryParams = Depends()): shortcut
+async def read_items(commons: CommonQueryParams = Depends(CommonQueryParams)):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
+
+
+async def verify_token(x_token: str = Header()):
+    if x_token != "fake-super-secret-token":
+        raise HTTPException(status_code=400, detail="X-Token header invalid")
+
+
+async def verify_key(x_key: str = Header()):
+    if x_key != "fake-super-secret-key":
+        raise HTTPException(status_code=400, detail="X-Key header invalid")
+    return x_key
+
+
+@app.get("/items/", dependencies=[Depends(verify_token), Depends(verify_key)])
+async def read_items():
+    return [{"item": "Foo"}, {"item": "Bar"}]
+
+
+# global dependencies
+# app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+@app.get("/items/")
+async def read_items(token: str = Depends(oauth2_scheme)):
+    return {"token": token}
