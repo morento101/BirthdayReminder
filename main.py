@@ -2,12 +2,14 @@ from enum import Enum
 from pydantic import BaseModel, Field, HttpUrl, EmailStr
 from fastapi import (
     FastAPI, Query, Path, Body, Cookie, Header, status, Form, File, UploadFile,
-    HTTPException, Depends
+    HTTPException, Depends, Request, BackgroundTasks
 )
 from datetime import datetime, time, timedelta
 from uuid import UUID
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 
 class ModelName(str, Enum):
@@ -69,7 +71,71 @@ class UserOut(BaseModel):
     full_name: str | None = None
 
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "users",
+        "description": "Operations with users. The **login** logic is also here.",
+    },
+    {
+        "name": "items",
+        "description": "Manage items. So _fancy_ they have their own docs.",
+        "externalDocs": {
+            "description": "Items external docs",
+            "url": "https://fastapi.tiangolo.com/",
+        },
+    },
+]
+
+
+description = """
+ChimichangApp API helps you do awesome stuff. 🚀
+
+## Items
+
+You can **read items**.
+
+## Users
+
+You will be able to:
+
+* **Create users** (_not implemented_).
+* **Read users** (_not implemented_).
+"""
+
+
+app = FastAPI(
+    title="ChimichangApp",
+    description=description,
+    version="0.0.1",
+    terms_of_service="http://example.com/terms/",
+    contact={
+        "name": "Deadpoolio the Amazing",
+        "url": "http://x-force.example.com/contact/",
+        "email": "dp@x-force.example.com",
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },
+)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
@@ -315,3 +381,24 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 @app.get("/items/")
 async def read_items(token: str = Depends(oauth2_scheme)):
     return {"token": token}
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time()
+    response = await call_next(request)
+    process_time = time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+
+def write_notification(email: str, message=""):
+    with open("log.txt", mode="w") as email_file:
+        content = f"notification for {email}: {message}"
+        email_file.write(content)
+
+
+@app.post("/send-notification/{email}")
+async def send_notification(email: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(write_notification, email, message="some notification")
+    return {"message": "Notification sent in the background"}
