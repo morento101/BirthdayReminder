@@ -5,8 +5,8 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from .schemas import TokenData, UserInDB
-from motor.motor_asyncio import AsyncIOMotorClient
-from core.dependecies import get_client
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from core.dependecies import get_db
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -38,8 +38,7 @@ async def create_access_token(
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
 
-async def get_user(username: str, client: AsyncIOMotorClient):
-    db = client.birthday_reminder
+async def get_user(username: str, db: AsyncIOMotorDatabase):
     user = await db.users.find_one({ "username": username })
 
     if user is None:
@@ -52,9 +51,9 @@ async def get_user(username: str, client: AsyncIOMotorClient):
 
 
 async def authenticate_user(
-    username: str, password: str, client: AsyncIOMotorClient
+    username: str, password: str, db: AsyncIOMotorDatabase
 ):
-    user = await get_user(username, client)
+    user = await get_user(username, db)
 
     if user is None:
         return
@@ -65,7 +64,7 @@ async def authenticate_user(
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme), 
-    client: AsyncIOMotorClient = Depends(get_client)
+    db: AsyncIOMotorDatabase = Depends(get_db)
 ):
     creadentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -87,7 +86,7 @@ async def get_current_user(
     except JWTError:
         raise creadentials_exception
 
-    user = await get_user(username=token_data.username, client=client)
+    user = await get_user(username=token_data.username, db=db)
 
     if user is None:
         raise creadentials_exception

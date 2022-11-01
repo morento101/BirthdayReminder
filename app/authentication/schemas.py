@@ -31,4 +31,23 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
+
+
+class CreateUser(BaseModel):
+    username: str
+    email: EmailStr
+    password1: str
+    password2: str
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        schema_extra = {
+            "example": {
+                "username": "Jane Doe",
+                "email": "jdoe@example.com",
+                "password1": "password1234",
+                "password2": "password1234",
+            }
+        }
  
