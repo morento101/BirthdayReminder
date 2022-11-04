@@ -3,24 +3,11 @@ from core.utils import PyObjectId
 from bson import ObjectId
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: str | None = None
-
-
 class User(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     username: str
     email: EmailStr
 
     class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
                 "username": "Jane Doe",
@@ -29,25 +16,22 @@ class User(BaseModel):
         }
 
 
-class UserInDB(User):
-    hashed_password: str
-
-
-class CreateUser(BaseModel):
-    username: str
-    email: EmailStr
-    password1: str
-    password2: str
+class UserResponseSchema(User):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
-        schema_extra = {
-            "example": {
-                "username": "Jane Doe",
-                "email": "jdoe@example.com",
-                "password1": "password1234",
-                "password2": "password1234",
-            }
+        json_encoders = {ObjectId: str}
+        
+
+class CreateUser(User):
+    password: str
+    confirm_password: str
+
+    class Config:
+        schema_extra = BaseModel.Config.schema_extra + {
+            "password": "Password1234*",
+            "confirm_password": "Password1234*",
         }
  
