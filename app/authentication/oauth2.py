@@ -1,7 +1,7 @@
 import base64
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
-from core.config import settings
+from app.core.config import settings
 
 
 class AuthSettings(BaseModel):

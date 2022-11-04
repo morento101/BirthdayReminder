@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, EmailStr
-from core.utils import PyObjectId
+from app.core.utils import PyObjectId
 from bson import ObjectId
 
 
@@ -30,8 +30,11 @@ class CreateUser(User):
     confirm_password: str
 
     class Config:
-        schema_extra = BaseModel.Config.schema_extra + {
-            "password": "Password1234*",
-            "confirm_password": "Password1234*",
+        schema_extra = {
+            "example": {
+                "username": "Jane Doe",
+                "email": "jdoe@example.com",
+                "password": "Password1234*",
+                "confirm_password": "Password1234*",
+            }
         }
- 
