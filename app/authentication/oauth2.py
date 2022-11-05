@@ -2,6 +2,10 @@ import base64
 from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 from app.core.config import settings
+from fastapi import Depends, HTTPException, status
+from app.core.database import user_collection
+from bson import ObjectId
+from fastapi_jwt_auth.exceptions import MissingTokenError
 
 
 class AuthSettings(BaseModel):
@@ -25,3 +29,31 @@ class AuthSettings(BaseModel):
 @AuthJWT.load_config
 def get_config():
     return AuthSettings()
+
+
+async def get_current_user(authorize: AuthJWT = Depends()):
+    try:
+        authorize.jwt_required()
+        user_id = authorize.get_jwt_subject()
+
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Could not refresh access token'
+            )
+
+        user = await user_collection.find_one({'_id': ObjectId(str(user_id))})
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='User does not exist'
+            )
+
+    except MissingTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='You are not logged in'
+        )
+
+    return user

@@ -1,7 +1,5 @@
-from bson.objectid import ObjectId
 from fastapi import APIRouter, Response, status, Depends, HTTPException
-from app.authentication.oauth2 import AuthJWT
-from fastapi_jwt_auth.exceptions import MissingTokenError
+from app.authentication.oauth2 import AuthJWT, get_current_user
 from app.core.database import user_collection
 from app.authentication.schemas import (
     CreateUser, UserResponseSchema, LoginUser
@@ -77,34 +75,23 @@ async def login(
 
 
 @router.get('/refresh')
-async def refresh_token(response: Response, authorize: AuthJWT = Depends()):
-    try:
-        authorize.jwt_refresh_token_required()
-        user_id = authorize.get_jwt_subject()
-
-        if not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Could not refresh access token'
-            )
-
-        user = await user_collection.find_one({'_id': ObjectId(str(user_id))})
-
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='The user belonging to this token no logger exist'
-            )
-
-        access_token = await generate_access_token(user, authorize)
-
-    except MissingTokenError:
-        raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Please provide refresh token'
-            )
-
+async def refresh_token(
+    response: Response,
+    authorize: AuthJWT = Depends(),
+    user: dict = Depends(get_current_user)
+):
+    access_token = await generate_access_token(user, authorize)
     await set_access_token_cookie(response, access_token)
     await set_logged_in_cookie(response)
-
     return {'access_token': access_token}
+
+
+@router.get('/logout', status_code=status.HTTP_200_OK)
+async def logout(
+    response: Response,
+    authorize: AuthJWT = Depends(), 
+    user: dict = Depends(get_current_user)
+):
+    authorize.unset_jwt_cookies()
+    response.set_cookie('logged_in', '', -1)
+    return {'status': 'success'}
