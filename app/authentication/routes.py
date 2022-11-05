@@ -10,7 +10,7 @@ from app.authentication.security import (
     generate_refresh_token
 )
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
 @router.post(
@@ -95,3 +95,8 @@ async def logout(
     authorize.unset_jwt_cookies()
     response.set_cookie('logged_in', '', -1)
     return {'status': 'success'}
+
+
+@router.get('/me', response_model=UserResponseSchema)
+async def get_me(user: dict = Depends(get_current_user)):
+    return UserResponseSchema(**user)
