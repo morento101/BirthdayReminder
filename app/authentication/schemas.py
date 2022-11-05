@@ -4,10 +4,11 @@ from bson import ObjectId
 
 
 class User(BaseModel):
-    username: str
+    username: str | None = None
     email: EmailStr
 
     class Config:
+        orm_mode = True
         schema_extra = {
             "example": {
                 "username": "Jane Doe",
@@ -26,6 +27,7 @@ class UserResponseSchema(User):
         
 
 class CreateUser(User):
+    username: str
     password: str
     confirm_password: str
 
@@ -38,3 +40,7 @@ class CreateUser(User):
                 "confirm_password": "Password1234*",
             }
         }
+
+
+class LoginUser(User):
+    password: str
