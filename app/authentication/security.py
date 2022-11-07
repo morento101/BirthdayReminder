@@ -20,14 +20,14 @@ async def hash_password(password):
 
 async def generate_access_token(user, authorize):
     return authorize.create_access_token(
-        subject=str(user["_id"]),
+        subject=str(user.id),
         expires_time=timedelta(minutes=ACCESS_TOKEN_EXPIRES_IN)
     )
 
 
 async def generate_refresh_token(user, authorize):
     return authorize.create_refresh_token(
-        subject=str(user["_id"]),
+        subject=str(user.id),
         expires_time=timedelta(minutes=REFRESH_TOKEN_EXPIRES_IN)
     )
 

@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-import uvicorn
 from app.authentication.routes import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
+from app.core.config import settings, initiate_database
 
 app = FastAPI()
 
@@ -14,13 +13,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.on_event('startup')
+async def setup_database():
+    client = await initiate_database()
+    app.mongodb_client = client
+
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    app.mongodb_client.close()
+
+
 app.include_router(auth_router)
 
 
 @app.get("/")
 async def home():
     return {"data": "Home Page"}
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

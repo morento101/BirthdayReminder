@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Response, status, Depends, HTTPException
 from app.authentication.oauth2 import AuthJWT, get_current_user
-from app.core.database import user_collection
 from app.authentication.schemas import (
     CreateUser, UserResponseSchema, LoginUser
 )
@@ -9,6 +8,7 @@ from app.authentication.security import (
     set_logged_in_cookie, set_refresh_token_cookie, generate_access_token,
     generate_refresh_token
 )
+from app.database.models import User
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -19,7 +19,9 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
     response_model=UserResponseSchema
 )
 async def register_user(user: CreateUser):
-    user_exists = await user_collection.find_one({"email": user.email.lower()})
+    user_exists = await User.find(
+        User.email == user.email.lower()
+    ).first_or_none()
 
     if user_exists:
         raise HTTPException(
@@ -35,12 +37,8 @@ async def register_user(user: CreateUser):
 
     user.password = await hash_password(user.password)
     user.email = user.email.lower()
-    saved_user = await user_collection.insert_one(
-        user.dict(exclude={'confirm_password'})
-    )
-    user_from_db = await user_collection.find_one(
-        {'_id': saved_user.inserted_id}
-    )
+    saved_user = await User(**user.dict(exclude={'confirm_password'})).create()
+    user_from_db = await User.get(saved_user.id)
     return user_from_db
 
 
@@ -54,14 +52,14 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Incorrect Email or Password'
         )
-    user_exists = await user_collection.find_one(
+    user_exists = await User.find(
         {"email": user_data.email.lower()}
-    )
+    ).first_or_none()
 
     if not user_exists:
         raise credentials_exception
 
-    if not await verify_password(user_data.password, user_exists["password"]):
+    if not await verify_password(user_data.password, user_exists.password):
         raise credentials_exception
 
     access_token = await generate_access_token(user_exists, authorize)
@@ -99,4 +97,4 @@ async def logout(
 
 @router.get('/me', response_model=UserResponseSchema)
 async def get_me(user: dict = Depends(get_current_user)):
-    return UserResponseSchema(**user)
+    return UserResponseSchema(**user.dict())

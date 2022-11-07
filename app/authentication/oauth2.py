@@ -3,9 +3,9 @@ from fastapi_jwt_auth import AuthJWT
 from pydantic import BaseModel
 from app.core.config import settings
 from fastapi import Depends, HTTPException, status
-from app.core.database import user_collection
 from bson import ObjectId
 from fastapi_jwt_auth.exceptions import MissingTokenError
+from app.database.models import User
 
 
 class AuthSettings(BaseModel):
@@ -42,7 +42,7 @@ async def get_current_user(authorize: AuthJWT = Depends()):
                 detail='Could not refresh access token'
             )
 
-        user = await user_collection.find_one({'_id': ObjectId(str(user_id))})
+        user = await User.get(ObjectId(str(user_id)))
 
         if not user:
             raise HTTPException(

@@ -44,3 +44,11 @@ class CreateUser(User):
 
 class LoginUser(User):
     password: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "email": "jdoe@example.com",
+                "password": "Password1234*",
+            }
+        }
