@@ -6,10 +6,7 @@ from app.database.models import User
 
 
 class Settings(BaseSettings):
-    FASTAPI_HOST: str
-    FASTAPI_PORT: int
-
-    DATABASE_URL: str
+    MONGO_URL: str = "mongodb://admin:password@mongodb:27017/?authSource=admin"
     MONGO_INITDB_DATABASE: str
 
     JWT_PUBLIC_KEY: str
@@ -32,14 +29,14 @@ async def initiate_database(
     mode="default"
 ):
     if mode == "default":
-        client = AsyncIOMotorClient(settings.DATABASE_URL)
+        client = AsyncIOMotorClient(settings.MONGO_URL)
     elif mode == "test":
         client = AsyncMongoMockClient()
     else:
         raise ValueError(f"Received invalid mode option: {mode}")
 
     await init_beanie(
-        database=client[database], 
+        database=client[database],
         document_models=[User]
     )
 

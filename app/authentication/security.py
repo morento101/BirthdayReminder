@@ -48,6 +48,6 @@ async def set_refresh_token_cookie(response, refresh_token):
 
 async def set_logged_in_cookie(response):
     response.set_cookie(
-        'logged_in', 'True', ACCESS_TOKEN_EXPIRES_IN * 60, 
+        'logged_in', 'True', ACCESS_TOKEN_EXPIRES_IN * 60,
         ACCESS_TOKEN_EXPIRES_IN * 60,
     )

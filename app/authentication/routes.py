@@ -4,7 +4,7 @@ from app.authentication.schemas import (
     CreateUser, UserResponseSchema, LoginUser
 )
 from app.authentication.security import (
-    hash_password, verify_password, set_access_token_cookie, 
+    hash_password, verify_password, set_access_token_cookie,
     set_logged_in_cookie, set_refresh_token_cookie, generate_access_token,
     generate_refresh_token
 )
@@ -14,8 +14,8 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
 @router.post(
-    "/register", 
-    status_code=status.HTTP_201_CREATED, 
+    "/register",
+    status_code=status.HTTP_201_CREATED,
     response_model=UserResponseSchema
 )
 async def register_user(user: CreateUser):
@@ -44,8 +44,8 @@ async def register_user(user: CreateUser):
 
 @router.post('/login')
 async def login(
-    user_data: LoginUser, 
-    response: Response, 
+    user_data: LoginUser,
+    response: Response,
     authorize: AuthJWT = Depends()
 ):
     credentials_exception = HTTPException(
@@ -87,7 +87,7 @@ async def refresh_token(
 @router.get('/logout', status_code=status.HTTP_200_OK)
 async def logout(
     response: Response,
-    authorize: AuthJWT = Depends(), 
+    authorize: AuthJWT = Depends(),
     user: dict = Depends(get_current_user)
 ):
     authorize.unset_jwt_cookies()

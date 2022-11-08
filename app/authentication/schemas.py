@@ -24,7 +24,7 @@ class UserResponseSchema(User):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        
+
 
 class CreateUser(User):
     username: str

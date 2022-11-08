@@ -35,7 +35,7 @@ async def test_register_user(client_test, register_user_data):
     )
 
     assert response.status_code == 201
-    
+
     response_data = response.json()
     assert register_user_data["username"] == response_data["username"]
     assert register_user_data["email"] == response_data["email"]
@@ -77,7 +77,9 @@ async def test_refresh(client_test, register_user_data, login_data):
     assert refresh_response.status_code == 200
 
     refresh_response_data = refresh_response.json()
-    assert login_response_data['access_token'] != refresh_response_data['access_token']
+    old_access_token = login_response_data['access_token']
+    new_access_token = refresh_response_data['access_token']
+    assert old_access_token != new_access_token
 
 
 @pytest.mark.anyio
@@ -103,7 +105,7 @@ async def test_get_me_url(client_test, register_user_data, login_data):
     response = await client_test.get(app.url_path_for('get_me'))
 
     assert response.status_code == 200
-    
+
     response_data = response.json()
     assert '_id' in response_data
     assert register_user_data['email'] == response_data['email']
