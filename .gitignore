@@ -5,7 +5,6 @@ __pycache__/
 .idea/
 .vscode/*
 .vscode
-.flake8
 
 # C extensions
 *.so
