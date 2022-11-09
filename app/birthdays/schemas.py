@@ -1,0 +1,34 @@
+from pydantic import BaseModel, validator
+from datetime import time
+
+
+class Birthday(BaseModel):
+    title: str
+    description: str = ""
+    day: int
+    month: int
+    notification_time: time
+
+    @validator('day')
+    def day_range(cls, value):
+        if value not in range(1, 32):
+            raise ValueError('Day must be in range from 1 to 31')
+        return value
+
+    @validator('month')
+    def month_range(cls, value):
+        if value not in range(1, 13):
+            raise ValueError('Month must be in range from 1 to 13')
+        return value
+
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "title": "Yaroslav's Birthday",
+                "description": "Birthday of my friend from McDonalds",
+                "day": 2,
+                "month": 11,
+                "notification_time": "15:30:00"
+            }
+        }

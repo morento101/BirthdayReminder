@@ -8,19 +8,15 @@ from app.authentication.security import (
     set_logged_in_cookie, set_refresh_token_cookie, generate_access_token,
     generate_refresh_token
 )
-from app.database.models import User
+from app.database.models import UserModel
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
-@router.post(
-    "/register",
-    status_code=status.HTTP_201_CREATED,
-    response_model=UserResponseSchema
-)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(user: CreateUser):
-    user_exists = await User.find(
-        User.email == user.email.lower()
+    user_exists = await UserModel.find(
+        UserModel.email == user.email.lower()
     ).first_or_none()
 
     if user_exists:
@@ -37,8 +33,10 @@ async def register_user(user: CreateUser):
 
     user.password = await hash_password(user.password)
     user.email = user.email.lower()
-    saved_user = await User(**user.dict(exclude={'confirm_password'})).create()
-    user_from_db = await User.get(saved_user.id)
+    saved_user = await UserModel(
+        **user.dict(exclude={'confirm_password'})
+    ).create()
+    user_from_db = await UserModel.get(saved_user.id)
     return user_from_db
 
 
@@ -52,9 +50,7 @@ async def login(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Incorrect Email or Password'
         )
-    user_exists = await User.find(
-        {"email": user_data.email.lower()}
-    ).first_or_none()
+    user_exists = await UserModel.find_one({"email": user_data.email.lower()})
 
     if not user_exists:
         raise credentials_exception

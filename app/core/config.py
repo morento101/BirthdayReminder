@@ -2,10 +2,11 @@ from pydantic import BaseSettings
 from motor.motor_asyncio import AsyncIOMotorClient
 from mongomock_motor import AsyncMongoMockClient
 from beanie import init_beanie
-from app.database.models import User
+from app.database.models import UserModel, BirthdayModel
 
 
 class Settings(BaseSettings):
+    SECRET_KEY: str
     MONGO_URL: str = "mongodb://admin:password@mongodb:27017/?authSource=admin"
     MONGO_INITDB_DATABASE: str
 
@@ -37,7 +38,7 @@ async def initiate_database(
 
     await init_beanie(
         database=client[database],
-        document_models=[User]
+        document_models=[UserModel, BirthdayModel]
     )
 
     return client
