@@ -37,7 +37,7 @@ async def register_user(user: CreateUser):
         **user.dict(exclude={'confirm_password'})
     ).create()
     user_from_db = await UserModel.get(saved_user.id)
-    return user_from_db
+    return user_from_db.dict(exclude={"password"})
 
 
 @router.post('/login')
@@ -47,9 +47,9 @@ async def login(
     authorize: AuthJWT = Depends()
 ):
     credentials_exception = HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Incorrect Email or Password'
-        )
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail='Incorrect Email or Password'
+    )
     user_exists = await UserModel.find_one({"email": user_data.email.lower()})
 
     if not user_exists:

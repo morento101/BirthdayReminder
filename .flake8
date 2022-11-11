@@ -16,4 +16,6 @@ exclude =
     Dockerfile,
     pytest.ini
 
+ignore = F401,F841,F811
+
 docstring-convention = google
