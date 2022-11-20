@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Response, status, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+
 from app.authentication.oauth2 import AuthJWT, get_current_user
-from app.authentication.schemas import (
-    CreateUser, UserResponseSchema, LoginUser
-)
-from app.authentication.security import (
-    hash_password, verify_password, set_access_token_cookie,
-    set_logged_in_cookie, set_refresh_token_cookie, generate_access_token,
-    generate_refresh_token
-)
+from app.authentication.schemas import (CreateUser, LoginUser,
+                                        UserResponseSchema)
+from app.authentication.security import (generate_access_token,
+                                         generate_refresh_token, hash_password,
+                                         set_access_token_cookie,
+                                         set_logged_in_cookie,
+                                         set_refresh_token_cookie,
+                                         verify_password)
 from app.database.models import UserModel
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])

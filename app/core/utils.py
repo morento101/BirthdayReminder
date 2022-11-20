@@ -1,8 +1,11 @@
-from bson import ObjectId
-import re
 import inspect
-from fastapi.routing import APIRoute
+import re
+
+from beanie import Document, PydanticObjectId
+from bson import ObjectId
+from fastapi import HTTPException, status
 from fastapi.openapi.utils import get_openapi
+from fastapi.routing import APIRoute
 
 
 class PyObjectId(ObjectId):
@@ -90,10 +93,13 @@ def custom_openapi(app):
 
             for method in methods:
                 if (
-                    re.search("jwt_required", inspect.getsource(endpoint)) or
                     re.search(
-                        "fresh_jwt_required", inspect.getsource(endpoint)) or
-                    re.search("jwt_optional", inspect.getsource(endpoint))
+                        "jwt_required", inspect.getsource(endpoint)
+                    ) or re.search(
+                        "fresh_jwt_required", inspect.getsource(endpoint)
+                    ) or re.search(
+                        "jwt_optional", inspect.getsource(endpoint)
+                    )
                 ):
                     try:
                         params = openapi_schema["paths"][path][method][
@@ -131,3 +137,15 @@ def custom_openapi(app):
         app.openapi_schema = openapi_schema
         return app.openapi_schema
     return inner
+
+
+async def get_or_404(model: Document, id: PydanticObjectId) -> Document:
+    instance = await model.get(id)
+
+    if not instance:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Such birthday does not exist'
+        )
+
+    return instance

@@ -1,50 +1,75 @@
-from app.main import app
 import pytest
-from app.tests.fixtures import register_user_data, login_data
 
-
-@pytest.fixture
-async def birthday_data():
-    return {
-        "title": "Test Birthday",
-        "description": "Tesc Description",
-        "day": 5,
-        "month": 1,
-        "notification_time": "10:10:10"
-    }
+from app.main import app
+from app.tests.fixtures import login_data, register_user_data, birthday_data
+from app.tests.utils import setup_test_user, add_test_birthday
 
 
 @pytest.mark.anyio
-async def create_birthday(client_test, birthday_data: dict):
-    await client_test.post(
-        app.url_path_for('register_user'), json=register_user_data
-    )
-    await client_test.post(app.url_path_for('login'), json=login_data)
-    response = await client_test.post(
-        app.url_path_for('add_birthday'), json=birthday_data
-    )
+async def test_create_birthday(
+    client_test,
+    register_user_data,
+    login_data,
+    birthday_data: dict
+):
+    await setup_test_user(client_test, register_user_data, login_data)
 
+    response = await add_test_birthday(client_test, birthday_data)
     assert response.status_code == 201
 
     response_data = response.json()
-    keys = birthday_data.keys().update({"_id"})
+    birthday_data.update({"_id": None})
+    keys = birthday_data.keys()
     for key in keys:
         assert key in response_data
 
 
 @pytest.mark.anyio
-async def get_birthday(client_test, birthday_data: dict):
-    await client_test.post(
-        app.url_path_for('register_user'), json=register_user_data
-    )
-    await client_test.post(app.url_path_for('login'), json=login_data)
-    birthday_id = await client_test.post(
-        app.url_path_for('add_birthday'), json=birthday_data
-    ).json()["_id"]
+async def test_get_birthday(
+    client_test,
+    register_user_data,
+    login_data,
+    birthday_data: dict
+):
+    await setup_test_user(client_test, register_user_data, login_data)
+
+    birthday = await add_test_birthday(client_test, birthday_data)
+    birthday_id = birthday.json()["_id"]
 
     response = await client_test.get(
         app.url_path_for('get_birthday', birthday_id=birthday_id)
     )
-
     assert response.status_code == 200
-    assert response.json() == birthday_data
+
+    response_data = response.json()
+    birthday_data.update({"_id": None})
+    keys = birthday_data.keys()
+    for key in keys:
+        assert key in response_data
+
+
+@pytest.mark.anyio
+async def test_edit_birthday(
+    client_test,
+    register_user_data,
+    login_data,
+    birthday_data
+):
+    await setup_test_user(client_test, register_user_data, login_data)
+
+    birthday = await add_test_birthday(client_test, birthday_data)
+    birthday_id = birthday.json()["_id"]
+
+    get_birthday = await client_test.get(
+        app.url_path_for('get_birthday', birthday_id=birthday_id)
+    )
+    get_birthday_data = get_birthday.json()
+
+    edit_birthday_response = await client_test.patch(
+        app.url_path_for('get_birthday', birthday_id=birthday_id),
+        json={"title": "changed"}
+    )
+    edit_birthday_data = edit_birthday_response.json()
+
+    assert edit_birthday_response.status_code == 200
+    assert get_birthday_data["title"] != edit_birthday_data["title"]

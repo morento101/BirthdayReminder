@@ -17,7 +17,7 @@ class AuthSettings(BaseModel):
     authjwt_access_cookie_key: str = 'access_token'
     authjwt_refresh_cookie_key: str = 'refresh_token'
     authjwt_cookie_secure: bool = False
-    authjwt_cookie_csrf_protect: bool = True
+    authjwt_cookie_csrf_protect: bool = False
     # Change to 'lax' in production to make your website more secure from CSRF Attacks, default is None # noqa
     # authjwt_cookie_samesite: str = 'lax'
 

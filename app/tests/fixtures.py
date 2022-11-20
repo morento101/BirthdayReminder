@@ -17,3 +17,14 @@ async def login_data():
         "email": "test@example.com",
         "password": "SuperPassword1234*",
     }
+
+
+@pytest.fixture()
+async def birthday_data() -> dict:
+    return {
+        "title": "Test Birthday",
+        "description": "Tesc Description",
+        "day": 5,
+        "month": 1,
+        "notification_time": "10:10:10"
+    }

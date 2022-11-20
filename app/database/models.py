@@ -19,7 +19,7 @@ class BirthdayModel(Document):
 
 class UserModel(Document):
     username: str | None = None
-    email:  Indexed(EmailStr, unique=True)
+    email: Indexed(EmailStr, unique=True)
     password: str
     birthdays: list[Link[BirthdayModel]] | None = None
 

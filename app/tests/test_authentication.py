@@ -1,6 +1,9 @@
-from app.main import app
 import pytest
-from app.tests.fixtures import register_user_data, login_data
+
+from app.main import app
+from app.tests.fixtures import login_data, register_user_data
+from app.tests.utils import (login_test_user, register_test_user,
+                             setup_test_user)
 
 
 @pytest.mark.anyio
@@ -13,10 +16,7 @@ async def test_root(client_test):
 
 @pytest.mark.anyio
 async def test_register_user(client_test, register_user_data):
-    response = await client_test.post(
-        app.url_path_for('register_user'), json=register_user_data
-    )
-
+    response = await register_test_user(client_test, register_user_data)
     assert response.status_code == 201
 
     response_data = response.json()
@@ -28,14 +28,9 @@ async def test_register_user(client_test, register_user_data):
 
 @pytest.mark.anyio
 async def test_login(client_test, register_user_data, login_data):
-    await client_test.post(
-        app.url_path_for('register_user'), json=register_user_data
-    )
+    await register_test_user(client_test, register_user_data)
 
-    response = await client_test.post(
-        app.url_path_for('login'), json=login_data
-    )
-
+    response = await login_test_user(client_test, login_data)
     assert response.status_code == 200
 
     response_data = response.json()
@@ -45,13 +40,9 @@ async def test_login(client_test, register_user_data, login_data):
 
 @pytest.mark.anyio
 async def test_refresh(client_test, register_user_data, login_data):
-    await client_test.post(
-        app.url_path_for('register_user'), json=register_user_data
-    )
+    await register_test_user(client_test, register_user_data)
 
-    login_response = await client_test.post(
-        app.url_path_for('login'), json=login_data
-    )
+    login_response = await login_test_user(client_test, login_data)
     login_response_data = login_response.json()
 
     refresh_response = await client_test.get(
@@ -67,12 +58,9 @@ async def test_refresh(client_test, register_user_data, login_data):
 
 @pytest.mark.anyio
 async def test_logout(client_test, register_user_data, login_data):
-    await client_test.post(
-        app.url_path_for('register_user'), json=register_user_data
-    )
-    await client_test.post(app.url_path_for('login'), json=login_data)
-    response = await client_test.get(app.url_path_for('logout'))
+    await setup_test_user(client_test, register_user_data, login_data)
 
+    response = await client_test.get(app.url_path_for('logout'))
     assert response.status_code == 200
     assert 'access_token' not in response.cookies
     assert 'refresh_token' not in response.cookies
@@ -81,12 +69,9 @@ async def test_logout(client_test, register_user_data, login_data):
 
 @pytest.mark.anyio
 async def test_get_me_url(client_test, register_user_data, login_data):
-    await client_test.post(
-        app.url_path_for('register_user'), json=register_user_data
-    )
-    await client_test.post(app.url_path_for('login'), json=login_data)
-    response = await client_test.get(app.url_path_for('get_me'))
+    await setup_test_user(client_test, register_user_data, login_data)
 
+    response = await client_test.get(app.url_path_for('get_me'))
     assert response.status_code == 200
 
     response_data = response.json()

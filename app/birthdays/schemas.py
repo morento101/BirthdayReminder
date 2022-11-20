@@ -4,7 +4,7 @@ from datetime import time
 
 class Birthday(BaseModel):
     title: str
-    description: str = ""
+    description: str | None = None
     day: int
     month: int
     notification_time: time
@@ -32,3 +32,11 @@ class Birthday(BaseModel):
                 "notification_time": "15:30:00"
             }
         }
+
+
+class UpdateBirthday(Birthday):
+    title: str | None = None
+    description: str | None = None
+    day: str | None = None
+    month: str | None = None
+    notification_time: str | None = None
