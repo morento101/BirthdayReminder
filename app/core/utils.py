@@ -145,7 +145,7 @@ async def get_or_404(model: Document, id: PydanticObjectId) -> Document:
     if not instance:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Such birthday does not exist'
+            detail='Such data does not exist'
         )
 
     return instance
