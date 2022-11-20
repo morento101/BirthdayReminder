@@ -1,5 +1,5 @@
 from beanie import PydanticObjectId, WriteRules
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status, Response
 
 from app.authentication.oauth2 import get_current_user
 from app.birthdays.schemas import Birthday, UpdateBirthday
@@ -50,3 +50,12 @@ async def edit_birthday(
 
     await birthday.update(update_query)
     return birthday
+
+
+@router.delete("/{birthday_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_birthday(
+    birthday_id: PydanticObjectId,
+    user: UserModel = Depends(get_current_user)
+):
+    birthday = await get_or_404(BirthdayModel, birthday_id)
+    await birthday.delete()
