@@ -10,8 +10,12 @@ services:
       - "8000:8000"
     depends_on:
       - mongodb
+      - redis
     env_file:
       - .env
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
   mongodb:
     image: mongo:latest
@@ -25,3 +29,19 @@ services:
       - "MONGO_INITDB_ROOT_PASSWORD=password"
     env_file:
       - .env
+
+  worker:
+    build: .
+    command: celery --app=app.tasks.worker.celery worker --loglevel=info --logfile=app/tasks/celery.log
+    volumes:
+      - .:/code
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+      - mongodb
+
+  redis:
+    image: redis:latest
