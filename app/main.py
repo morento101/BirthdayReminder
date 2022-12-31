@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.authentication.routes import router as auth_router
 from app.birthdays.routes import router as birthdays_router
-from app.core.config import initiate_database, settings
+from app.core.config import initiate_database, settings, BASE_DIR
 from app.core.utils import custom_openapi
 from app.tasks.worker import celery, create_task
 
@@ -12,7 +12,9 @@ app = FastAPI()
 
 app.include_router(auth_router)
 app.include_router(birthdays_router)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount(
+    "/static", StaticFiles(directory=f"{BASE_DIR}/static/"), name="static"
+)
 
 app.openapi = custom_openapi(app)
 

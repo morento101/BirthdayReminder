@@ -1,9 +1,14 @@
+from pathlib import Path
+
 from beanie import init_beanie
 from mongomock_motor import AsyncMongoMockClient
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseSettings
 
 from app.database.models import BirthdayModel, UserModel
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
@@ -18,6 +23,8 @@ class Settings(BaseSettings):
 
     EMAIL_USERNAME: str
     EMAIL_PASSWORD: str
+    EMAIL_PORT: int = 587
+    EMAIL_HOST: str = 'smtp.gmail.com'
 
     MONGO_URL: str = "mongodb://admin:password@mongodb:27017/?authSource=admin"
     MONGO_INITDB_DATABASE: str
