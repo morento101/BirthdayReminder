@@ -2,13 +2,14 @@ from asgiref.sync import async_to_sync
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 
 from app.core.config import BASE_DIR, settings
+from app.main import app
 
 conf = ConnectionConfig(
-    MAIL_USERNAME=settings.EMAIL_USERNAME,
-    MAIL_PASSWORD=settings.EMAIL_PASSWORD,
-    MAIL_FROM=settings.EMAIL_USERNAME,
-    MAIL_PORT=settings.EMAIL_PORT,
-    MAIL_SERVER=settings.EMAIL_HOST,
+    MAIL_USERNAME=settings.MAIL_USERNAME,
+    MAIL_PASSWORD=settings.MAIL_PASSWORD,
+    MAIL_FROM=settings.MAIL_FROM,
+    MAIL_PORT=settings.MAIL_PORT,
+    MAIL_SERVER=settings.MAIL_SERVER,
     MAIL_STARTTLS=False,
     MAIL_SSL_TLS=False,
     USE_CREDENTIALS=True,

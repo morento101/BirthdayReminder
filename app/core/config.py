@@ -21,10 +21,11 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
     CLIENT_ORIGIN: str
 
-    EMAIL_USERNAME: str
-    EMAIL_PASSWORD: str
-    EMAIL_PORT: int = 587
-    EMAIL_HOST: str = 'smtp.gmail.com'
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_FROM: str
 
     MONGO_URL: str = "mongodb://admin:password@mongodb:27017/?authSource=admin"
     MONGO_INITDB_DATABASE: str
