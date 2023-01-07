@@ -2,7 +2,6 @@ from asgiref.sync import async_to_sync
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 
 from app.core.config import BASE_DIR, settings
-from app.main import app
 
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.MAIL_USERNAME,

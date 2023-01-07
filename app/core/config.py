@@ -30,8 +30,8 @@ class Settings(BaseSettings):
     MONGO_URL: str = "mongodb://admin:password@mongodb:27017/?authSource=admin"
     MONGO_INITDB_DATABASE: str
 
-    CELERY_BROKER_URL: str = "redis://localhost:6379"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379"
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
 
     class Config:
         env_file = '.env'

@@ -24,14 +24,9 @@
 
   /*
 -------------------------------------
-    BODY & CONTAINER
+    CONTAINER
 -------------------------------------
 */
-
-  .body {
-    background-color: #f6f6f6;
-    width: 100%;
-  }
 
   /*
 Set a max-width, and make it display as block so it will automatically stretch 
@@ -57,5 +52,46 @@ so that it will fill 100% of the .container
     margin: 0 auto;
     max-width: 580px;
     padding: 10px;
+  }
+
+  /*
+-------------------------------------
+    TYPOGRAPHY
+-------------------------------------
+*/
+
+  .bold {
+    font-weight: bold;
+  }
+
+  .green {
+    color: green;
+  }
+
+  .title {
+    font-size: large;
+  }
+
+  .text {
+    font-size: medium;
+    font-weight: normal;
+  }
+
+  /*
+-------------------------------------
+    BLOCKS
+-------------------------------------
+*/
+
+  .main-block,
+  .additional-block,
+  .footer-block {
+    margin: 20px;
+  }
+
+  .footer-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

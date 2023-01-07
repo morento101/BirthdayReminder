@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from app.authentication.routes import router as auth_router
 from app.birthdays.routes import router as birthdays_router
-from app.core.config import initiate_database, settings, BASE_DIR
+from app.core.config import BASE_DIR, initiate_database, settings
 from app.core.utils import custom_openapi
 from app.tasks.worker import celery, create_task
 
@@ -15,6 +16,7 @@ app.include_router(birthdays_router)
 app.mount(
     "/static", StaticFiles(directory=f"{BASE_DIR}/static/"), name="static"
 )
+templates = Jinja2Templates(directory="templates")
 
 app.openapi = custom_openapi(app)
 

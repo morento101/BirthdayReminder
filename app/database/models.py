@@ -5,6 +5,7 @@ from datetime import time
 
 class BirthdayModel(Document):
     title: str
+    name_of_birthday_boy: str
     description: str = ""
     day: int
     month: int
