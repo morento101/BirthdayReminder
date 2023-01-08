@@ -23,7 +23,8 @@ async def login_data():
 async def birthday_data() -> dict:
     return {
         "title": "Test Birthday",
-        "description": "Tesc Description",
+        "name_of_birthday_boy": "Test",
+        "description": "Test Description",
         "day": 5,
         "month": 1,
         "notification_time": "10:10:10"

@@ -4,6 +4,7 @@ from datetime import time
 
 class Birthday(BaseModel):
     title: str
+    name_of_birthday_boy: str
     description: str | None = None
     day: int
     month: int
@@ -26,6 +27,7 @@ class Birthday(BaseModel):
         schema_extra = {
             "example": {
                 "title": "Yaroslav's Birthday",
+                "name_of_birthday_boy": "Anton",
                 "description": "Birthday of my friend from McDonalds",
                 "day": 2,
                 "month": 11,
