@@ -1,5 +1,4 @@
 from pydantic import BaseModel, validator
-from datetime import time
 
 
 class Birthday(BaseModel):
@@ -8,7 +7,6 @@ class Birthday(BaseModel):
     description: str | None = None
     day: int
     month: int
-    notification_time: time
 
     @validator('day')
     def day_range(cls, value):
@@ -31,7 +29,6 @@ class Birthday(BaseModel):
                 "description": "Birthday of my friend from McDonalds",
                 "day": 2,
                 "month": 11,
-                "notification_time": "15:30:00"
             }
         }
 
@@ -41,4 +38,3 @@ class UpdateBirthday(Birthday):
     description: str | None = None
     day: str | None = None
     month: str | None = None
-    notification_time: str | None = None

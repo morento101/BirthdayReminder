@@ -27,5 +27,4 @@ async def birthday_data() -> dict:
         "description": "Test Description",
         "day": 5,
         "month": 1,
-        "notification_time": "10:10:10"
     }
