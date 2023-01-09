@@ -7,14 +7,6 @@ from app.tests.utils import (login_test_user, register_test_user,
 
 
 @pytest.mark.anyio
-async def test_root(client_test):
-    response = await client_test.get(app.url_path_for("home"))
-
-    assert response.status_code == 200
-    assert response.json() == {"data": "Home Page"}
-
-
-@pytest.mark.anyio
 async def test_register_user(client_test, register_user_data):
     response = await register_test_user(client_test, register_user_data)
     assert response.status_code == 201

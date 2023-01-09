@@ -1,0 +1,97 @@
+<style>
+  /* 
+-------------------------------------
+    GLOBAL RESETS
+-------------------------------------
+*/
+
+  img {
+    border: none;
+    max-width: 100%;
+  }
+
+  body {
+    background-color: #f6f6f6;
+    font-family: sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /*
+-------------------------------------
+    CONTAINER
+-------------------------------------
+*/
+
+  /*
+Set a max-width, and make it display as block so it will automatically stretch 
+to that width, but will also shrink down on a phone or something
+*/
+  .container {
+    display: block;
+    margin: 0 auto !important;
+
+    /* makes it centered */
+    max-width: 580px;
+    padding: 10px;
+    width: 580px;
+  }
+
+  /*
+This should also be a block element, 
+so that it will fill 100% of the .container
+*/
+  .content {
+    box-sizing: border-box;
+    display: block;
+    margin: 0 auto;
+    max-width: 580px;
+    padding: 10px;
+  }
+
+  /*
+-------------------------------------
+    TYPOGRAPHY
+-------------------------------------
+*/
+
+  .bold {
+    font-weight: bold;
+  }
+
+  .green {
+    color: green;
+  }
+
+  .title {
+    font-size: large;
+  }
+
+  .text {
+    font-size: medium;
+    font-weight: normal;
+  }
+
+  /*
+-------------------------------------
+    BLOCKS
+-------------------------------------
+*/
+
+  .main-block,
+  .additional-block,
+  .footer-block {
+    margin: 20px;
+  }
+
+  .footer-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>

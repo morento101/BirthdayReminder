@@ -1,9 +1,8 @@
 import pytest
 
 from app.main import app
-from app.tests.fixtures import login_data, register_user_data, birthday_data
-from app.tests.utils import setup_test_user, add_test_birthday
-from app.database.models import BirthdayModel
+from app.tests.fixtures import birthday_data, login_data, register_user_data
+from app.tests.utils import add_test_birthday, setup_test_user
 
 
 @pytest.mark.anyio
