@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.authentication.routes import router as auth_router
 from app.birthdays.routes import router as birthdays_router
-from app.core.config import BASE_DIR, initiate_database, settings
+from app.core.config import initiate_database, settings
 from app.core.utils import custom_openapi
 from app.tasks.worker import celery
 

@@ -13,11 +13,6 @@ celery.conf.broker_url = settings.CELERY_BROKER_URL
 celery.conf.result_backend = settings.CELERY_RESULT_BACKEND
 
 
-@celery.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(60, create_task.s())
-
-
 celery.conf.beat_schedule = {
     'add-at-melbourne-sunset': {
         'task': 'create_task',
@@ -43,3 +38,5 @@ def create_task():
                 "descrition": birthday.description
             }
         )
+
+    return True

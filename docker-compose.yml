@@ -58,4 +58,15 @@ services:
       - web
       - redis
       - mongodb
-      - celery_beat
+
+  celery_flower:
+    build: .
+    command: celery -A app.tasks.worker flower --loglevel=info --port=5566 --basic_auth=admin:admin
+    volumes:
+      - .:/code
+    depends_on:
+      - web
+      - redis
+      - mongodb
+    ports:
+      - "5566:5566"
