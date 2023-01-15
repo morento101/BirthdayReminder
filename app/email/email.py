@@ -16,7 +16,6 @@ conf = ConnectionConfig(
 )
 
 
-@async_to_sync
 async def send_birthday_reminder(email_to: str, content: dict):
     message = MessageSchema(
         subject='Birthday Reminder',

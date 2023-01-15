@@ -1,5 +1,5 @@
 from beanie import PydanticObjectId, WriteRules
-from fastapi import APIRouter, Depends, status, Response
+from fastapi import APIRouter, Depends, status
 
 from app.authentication.oauth2 import get_current_user
 from app.birthdays.schemas import Birthday, UpdateBirthday
@@ -19,10 +19,16 @@ async def add_birthday(
     user: UserModel = Depends(get_current_user),
 ):
     saved_birthday = await BirthdayModel(**birthday.dict()).create()
-    user.birthdays = [saved_birthday]
-    await user.save(link_rule=WriteRules.WRITE)
+
+    if user.birthdays:
+        user.birthdays.append(saved_birthday)
+    else:
+        user.birthdays = [saved_birthday]
+
+    user = await user.save(link_rule=WriteRules.WRITE)
 
     birthday_db = await BirthdayModel.get(saved_birthday.id)
+
     return birthday_db
 
 

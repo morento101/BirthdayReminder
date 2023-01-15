@@ -46,7 +46,7 @@ async def get_current_user(authorize: AuthJWT = Depends()):
                 detail='Could not refresh access token'
             )
 
-        user = await UserModel.get(ObjectId(str(user_id)))
+        user = await UserModel.get(str(user_id))
 
         if not user:
             raise HTTPException(

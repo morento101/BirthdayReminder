@@ -11,6 +11,7 @@ from app.authentication.security import (generate_access_token,
                                          verify_password)
 from app.database.models import UserModel
 
+
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 

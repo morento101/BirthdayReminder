@@ -12,8 +12,10 @@ async def login_test_user(client_test, login_data):
 
 
 async def setup_test_user(client_test, register_user_data, login_data):
-    await register_test_user(client_test, register_user_data)
+    user_response = await register_test_user(client_test, register_user_data)
     await login_test_user(client_test, login_data)
+
+    return user_response
 
 
 async def add_test_birthday(client_test, birthday_data):
