@@ -1,4 +1,3 @@
-from asgiref.sync import async_to_sync
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 
 from app.core.config import BASE_DIR, settings

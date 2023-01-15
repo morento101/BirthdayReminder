@@ -36,5 +36,5 @@ class Birthday(BaseModel):
 class UpdateBirthday(Birthday):
     title: str | None = None
     description: str | None = None
-    day: str | None = None
-    month: str | None = None
+    day: int | None = None
+    month: int | None = None
