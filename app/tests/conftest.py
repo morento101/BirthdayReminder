@@ -1,6 +1,7 @@
 import pytest
-from app.core.config import initiate_database
 from httpx import AsyncClient
+
+from app.core.config import initiate_database
 from app.main import app
 
 

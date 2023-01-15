@@ -1,7 +1,9 @@
+import asyncio
+
 from celery import Celery
 from celery.schedules import solar
 
-from app.core.config import settings
+from app.core.config import initiate_database, settings
 from app.email.email import send_birthday_reminder
 from app.tasks.utils import (get_all_today_birthdays,
                              get_user_data_from_birthday)
@@ -24,19 +26,26 @@ celery.conf.beat_schedule = {
 
 @celery.task(name="create_task")
 def create_task():
-    birthdays = get_all_today_birthdays()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(initiate_database())
+
+    birthdays = loop.run_until_complete(get_all_today_birthdays())
 
     for birthday in birthdays:
-        user = get_user_data_from_birthday(birthday)
+        user = loop.run_until_complete(
+            get_user_data_from_birthday(birthday)
+        )
 
-        send_birthday_reminder(
-            user.email,
-            {
-                "subject": "Birthday Reminder",
-                "user_name": user.username,
-                "name_of_birthday_boy": birthday.name_of_birthday_boy,
-                "descrition": birthday.description
-            }
+        loop.run_until_complete(
+            send_birthday_reminder(
+                user.email,
+                {
+                    "subject": "Birthday Reminder",
+                    "user_name": user.username,
+                    "name_of_birthday_boy": birthday.name_of_birthday_boy,
+                    "descrition": birthday.description
+                }
+            )
         )
 
     return True

@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field, EmailStr
-from app.core.utils import PyObjectId
 from bson import ObjectId
+from pydantic import BaseModel, EmailStr, Field
+
+from app.core.utils import PyObjectId
 
 
 class User(BaseModel):
@@ -19,6 +20,7 @@ class User(BaseModel):
 
 class UserResponseSchema(User):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    birthdays: list | None
 
     class Config:
         allow_population_by_field_name = True
